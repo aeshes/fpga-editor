@@ -167,28 +167,53 @@ public class MainWindow {
     // ================== Вкладки ==================
 
     private TabInfo createTab(DocumentManager documentManager, MonacoFX editor, String label) {
-        Tab tab = new Tab(label);
-        tab.setClosable(true);
+        Tab tab = new Tab();
+        tab.setClosable(false);
         tab.setContent(editor);
+
+        Label title = new Label(label);
+        title.getStyleClass().add("hard-tab-title");
+
+        Label close = new Label("\u2715");
+        close.getStyleClass().add("hard-tab-close");
+        close.setOnMouseClicked(e -> {
+            e.consume();
+            closeTab(getInfoForTab(tab));
+        });
+
+        HBox header = new HBox(8, title, close);
+        header.setAlignment(Pos.CENTER);
+        tab.setGraphic(header);
+
+        header.setOnMouseClicked(e -> {
+            if (e.getButton() == javafx.scene.input.MouseButton.MIDDLE) {
+                if (!closeTab(getInfoForTab(tab))) {
+                    e.consume();
+                }
+            }
+        });
+
+        tab.setOnSelectionChanged(e -> updateTitle());
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
-        TabInfo info = new TabInfo(tab, editor, documentManager);
+
+        TabInfo info = new TabInfo(tab, editor, documentManager, title);
         openTabs.add(info);
         tab.setOnClosed(e -> openTabs.remove(info));
         return info;
     }
 
-    private TabInfo getActiveTabInfo() {
-        Tab active = tabPane.getSelectionModel().getSelectedItem();
-        if (active == null) {
-            return null;
-        }
+    private TabInfo getInfoForTab(Tab tab) {
         for (TabInfo info : openTabs) {
-            if (info.getTab() == active) {
+            if (info.getTab() == tab) {
                 return info;
             }
         }
         return null;
+    }
+
+    private TabInfo getActiveTabInfo() {
+        return getInfoForTab(tabPane.getSelectionModel().getSelectedItem());
     }
 
     private void openTabWithContent(String content, File file) {
@@ -200,9 +225,7 @@ public class MainWindow {
         }
         String label = file != null ? file.getName() : "Untitled-" + untitledCounter++;
         TabInfo info = createTab(dm, editor, label);
-        info.getTab().setTooltip(new Tooltip(
-                file != null ? file.getAbsolutePath() : "Безымянный документ"
-        ));
+        info.setPathTooltip(file != null ? file.getAbsolutePath() : "Безымянный документ");
         syncEditorFromTab(info);
     }
 
@@ -331,8 +354,8 @@ public class MainWindow {
             syncEditorFromTab(info);
             try {
                 dm.save(file);
-                info.getTab().setText(file.getName());
-                info.getTab().setTooltip(new Tooltip(file.getAbsolutePath()));
+                info.setTitle(file.getName());
+                info.setPathTooltip(file.getAbsolutePath());
                 updateTitle();
             } catch (IOException ex) {
                 showError("Не удалось сохранить файл: " + ex.getMessage());
@@ -356,7 +379,7 @@ public class MainWindow {
 
     private void updateTitle() {
         TabInfo info = getActiveTabInfo();
-        String name = info != null ? info.getTab().getText() : "Нет открытых файлов";
+        String name = info != null ? info.getTitle() : "Нет открытых файлов";
         stage.setTitle(name + " — " + APP_TITLE);
     }
 

@@ -1,32 +1,29 @@
-/* Стиль вкладок в духе IntelliJ IDEA (Darcula) */
+/* Базовые стили вкладок в духе IntelliJ IDEA (Darcula) */
+
+.hard-tab-pane {
+    -fx-background-color: #2b2b2b;
+}
 
 .hard-tab-pane .tab-header-background {
     -fx-background-color: #2b2b2b;
 }
 
 .hard-tab-pane .tab-header-area {
-    -fx-padding: 0 0 0 0;
+    -fx-padding: 2 0 0 6;
 }
 
 .hard-tab-pane .tab {
     -fx-background-color: transparent;
     -fx-background-insets: 0, 0, 0;
-    -fx-padding: 4 12 4 12;
+    -fx-padding: 4 10 4 10;
     -fx-focus-traversable: false;
     -fx-border-width: 0;
+    -fx-cursor: default;
 }
 
-.hard-tab-pane .tab .tab-label {
+.hard-tab-pane .tab .hard-tab-title {
     -fx-text-fill: #a9b7c6;
     -fx-font-size: 12px;
-}
-
-.hard-tab-pane .tab:hover {
-    -fx-background-color: #323232;
-}
-
-.hard-tab-pane .tab:hover .tab-label {
-    -fx-text-fill: #bbbfc3;
 }
 
 .hard-tab-pane .tab:selected {
@@ -35,27 +32,64 @@
     -fx-border-width: 0 0 2 0;
 }
 
-.hard-tab-pane .tab:selected .tab-label {
+.hard-tab-pane .tab:selected .hard-tab-title {
     -fx-text-fill: #e8e8e8;
 }
 
-.hard-tab-pane .tab .tab-close-button {
-    -fx-background-color: transparent;
-    -fx-shape: "M0,0 L0,0 Z";
-}
-
-.hard-tab-pane .tab:hover .tab-close-button {
-    -fx-background-color: #a9b7c6;
-    -fx-shape: "M 4.5,4.5 L 9.5,9.5 M 9.5,4.5 L 4.5,9.5";
-    -fx-stroke-width: 1;
-}
-
-.hard-tab-pane .tab:selected .tab-close-button {
-    -fx-background-color: #e8e8e8;
-    -fx-shape: "M 4.5,4.5 L 9.5,9.5 M 9.5,4.5 L 4.5,9.5";
-    -fx-stroke-width: 1;
+.hard-tab-pane .tab-content-area {
+    -fx-background-color: #2b2b2b;
 }
 
 .hard-tab-pane:focused {
     -fx-focus-color: transparent;
+}
+
+/* ============================================================
+   Интеракция при наведении на вкладку:
+   - подсветка вкладки
+   - отображение крестика закрытия
+
+   Крестик скрыт по умолчанию и виден только при наведении
+   мышки на вкладку, как в IntelliJ IDEA.
+   ============================================================ */
+
+.hard-tab-pane .tab:hover {
+    -fx-background-color: #323232;
+}
+
+.hard-tab-pane .tab:hover .hard-tab-title {
+    -fx-text-fill: #bbbfc3;
+}
+
+/* Крестик закрытия: фиксированный квадрат 16x16,
+   чтобы за ним можно было рисовать круглый фон */
+.hard-tab-close {
+    -fx-min-width: 16px;
+    -fx-min-height: 16px;
+    -fx-pref-width: 16px;
+    -fx-pref-height: 16px;
+    -fx-max-width: 16px;
+    -fx-max-height: 16px;
+    -fx-background-color: transparent;
+    -fx-background-radius: 8px;
+    -fx-alignment: center;
+    -fx-text-fill: #a9b7c6;
+    -fx-font-size: 11px;
+    -fx-padding: 0 0 0 0;
+    -fx-cursor: hand;
+}
+
+/* Скрыт по умолчанию */
+.hard-tab-pane .tab .hard-tab-close {
+    -fx-opacity: 0.0;
+}
+
+/* Виден только при наведении на вкладку */
+.hard-tab-pane .tab:hover .hard-tab-close {
+    -fx-opacity: 1.0;
+}
+
+/* Серый кружок вокруг крестика при наведении на него */
+.hard-tab-pane .tab:hover .hard-tab-close:hover {
+    -fx-background-color: #4f4f4f;
 }
