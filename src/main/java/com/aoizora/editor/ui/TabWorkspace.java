@@ -30,6 +30,10 @@ public class TabWorkspace {
         return tabPane;
     }
 
+    public List<TabInfo> getOpenTabs() {
+        return openTabs;
+    }
+
     public TabInfo getActiveTabInfo() {
         return getInfoForTab(tabPane.getSelectionModel().getSelectedItem());
     }

@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 public class FileController {
 
@@ -57,7 +58,7 @@ public class FileController {
     public void fileSave() {
         TabInfo info = tabs.getActiveTabInfo();
         if (info == null) return;
-        tabs.syncEditorFromTab(info);
+        tabs.syncTabFromEditor(info);
         DocumentManager dm = info.getDocumentManager();
         if (dm.hasFile()) {
             try {
@@ -66,12 +67,31 @@ public class FileController {
                 showError("Не удалось сохранить файл: " + ex.getMessage());
             }
         } else {
-            fileSaveAs();
+            fileSaveAs(info);
         }
     }
 
     public void fileSaveAs() {
-        TabInfo info = tabs.getActiveTabInfo();
+        fileSaveAs(tabs.getActiveTabInfo());
+    }
+
+    public void fileSaveAll() {
+        for (TabInfo info : new ArrayList<>(tabs.getOpenTabs())) {
+            tabs.syncTabFromEditor(info);
+            DocumentManager dm = info.getDocumentManager();
+            if (dm.hasFile()) {
+                try {
+                    dm.save(dm.getCurrentFile());
+                } catch (IOException ex) {
+                    showError("Не удалось сохранить файл: " + ex.getMessage());
+                }
+            } else {
+                fileSaveAs(info);
+            }
+        }
+    }
+
+    private void fileSaveAs(TabInfo info) {
         if (info == null) return;
         FileChooser chooser = fileChooser("Сохранить файл",
                 new FileChooser.ExtensionFilter("SystemVerilog", "*.sv"),
@@ -113,7 +133,7 @@ public class FileController {
     public void runTool(Tool tool, OutputSink outputSink) {
         TabInfo info = tabs.getActiveTabInfo();
         if (info == null || tool == null) return;
-        tabs.syncEditorFromTab(info);
+        tabs.syncTabFromEditor(info);
         tool.execute(outputSink, info.getDocumentManager().getAbsolutePath());
     }
 

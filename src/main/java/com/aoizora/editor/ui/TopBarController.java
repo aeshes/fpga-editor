@@ -118,6 +118,10 @@ public class TopBarController {
         saveAsItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+S"));
         saveAsItem.setOnAction(e -> { fileCtrl.fileSaveAs(); after.run(); });
 
+        MenuItem saveAllItem = new MenuItem("Save All");
+        saveAllItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Alt+S"));
+        saveAllItem.setOnAction(e -> { fileCtrl.fileSaveAll(); after.run(); });
+
         MenuItem openProjectItem = new MenuItem("Open Project...");
         openProjectItem.setOnAction(e -> { fileCtrl.fileOpenProject(); after.run(); });
 
@@ -137,6 +141,8 @@ public class TopBarController {
 
         fileMenu.getItems().addAll(
                 newItem, openItem, saveItem, saveAsItem,
+                new SeparatorMenuItem(),
+                saveAllItem,
                 new SeparatorMenuItem(),
                 openProjectItem,
                 new SeparatorMenuItem(),
