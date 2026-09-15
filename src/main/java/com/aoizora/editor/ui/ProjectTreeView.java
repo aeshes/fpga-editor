@@ -156,8 +156,11 @@ private static class ProjectCell extends TreeCell<ProjectNode> {
                 "M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708"
                         + "l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708";
 
-        private static final String FILE_ICON_BASE = "M8 1.2 14.8 8 8 14.8 1.2 8z";
-        private static final String FILE_ICON_V = "M6 6.4 8 9.4 10 6.4";
+        private static final String FILE_ICON_BASE =
+                "M5.5.5v2.5h1V.5zM9.5.5v2.5h1V.5zM5.5 13v2.5h1V13zM9.5 13v2.5h1V13z"
+                        + "M.5 5.5h2.5v1H.5zM.5 9.5h2.5v1H.5zM13 5.5h2.5v1H13zM13 9.5h2.5v1H13z"
+                        + "M4 2.5h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z";
+        private static final String FILE_ICON_DIE = "M6 6h4v4H6z";
         private static final String FOLDER_ICON = "M1 3.5h4.2l1.3 1.4H15v7.6H1z";
 
         private final SVGPath chevron = new SVGPath();
@@ -165,8 +168,8 @@ private static class ProjectCell extends TreeCell<ProjectNode> {
         private final SVGPath rootChevron = new SVGPath();
         private final StackPane rootChevronBox = new StackPane(rootChevron);
         private final SVGPath fileIconBase = new SVGPath();
-        private final SVGPath fileIconV = new SVGPath();
-        private final StackPane fileIcon = new StackPane(fileIconBase, fileIconV);
+        private final SVGPath fileIconDie = new SVGPath();
+        private final StackPane fileIcon = new StackPane(fileIconBase, fileIconDie);
         private final SVGPath folderIconGray = new SVGPath();
         private final StackPane folderGrayBox = new StackPane(folderIconGray);
         private final SVGPath folderIconBlue = new SVGPath();
@@ -189,9 +192,9 @@ private static class ProjectCell extends TreeCell<ProjectNode> {
             fileIconBase.getStyleClass().add("file-icon-base");
             fileIconBase.setContent(FILE_ICON_BASE);
             fileIconBase.setFill(null);
-            fileIconV.getStyleClass().add("file-icon-v");
-            fileIconV.setContent(FILE_ICON_V);
-            fileIconV.setFill(null);
+            fileIconDie.getStyleClass().add("file-icon-die");
+            fileIconDie.setContent(FILE_ICON_DIE);
+            fileIconDie.setFill(null);
 
             folderIconGray.getStyleClass().addAll("folder-icon", "folder-icon-gray");
             folderIconGray.setContent(FOLDER_ICON);

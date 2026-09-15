@@ -29,6 +29,7 @@
     -fx-text-fill: #a9b7c6;
     -fx-font-size: 12px;
     -fx-padding: 1 4 1 4;
+    -fx-indent: 16px;
 }
 
 .project-tree .tree-cell:filled:hover {
@@ -95,14 +96,11 @@
 }
 
 .project-tree .file-icon-base {
-    -fx-fill: #4b7bec;
+    -fx-fill: #9fb4d3;
 }
 
-.project-tree .file-icon-v {
-    -fx-stroke: #ffffff;
-    -fx-stroke-width: 1.8;
-    -fx-stroke-line-cap: round;
-    -fx-stroke-line-join: round;
+.project-tree .file-icon-die {
+    -fx-fill: #3f8ef5;
 }
 
 .project-tree .project-tree-root {
