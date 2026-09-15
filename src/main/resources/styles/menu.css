@@ -1,0 +1,24 @@
+/* Бургер-кнопка главного меню (вместо строки меню) */
+
+.burger-menu {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4px;
+    -fx-padding: 6 8 6 8;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.burger-menu:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.burger-line {
+    -fx-background-color: #a9b7c6;
+    -fx-background-radius: 1px;
+    -fx-min-width: 14px;
+    -fx-pref-width: 14px;
+    -fx-min-height: 2px;
+    -fx-pref-height: 2px;
+}

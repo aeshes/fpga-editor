@@ -8,9 +8,13 @@ import com.aoizora.editor.tools.*;
 import com.github.mouse0w0.darculafx.DarculaFX;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -39,6 +43,8 @@ public class MainWindow {
     private final List<TabInfo> openTabs = new ArrayList<>();
     private Project currentProject;
     private int untitledCounter = 1;
+    private MenuBar menuBar;
+    private Button burgerButton;
 
     public MainWindow(Stage stage) {
         this.stage = stage;
@@ -53,13 +59,17 @@ public class MainWindow {
 
         TextArea outputArea = createOutputArea();
         OutputSink outputSink = new TextAreaOutputSink(outputArea);
-        MenuBar menuBar = buildMenuBar();
+        menuBar = buildMenuBar(outputSink);
+        burgerButton = buildBurgerMenu(menuBar);
         HBox toolbar = buildToolbar(outputSink);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox topBar = new HBox(menuBar, spacer, toolbar);
+        HBox topBar = new HBox(burgerButton, menuBar, spacer, toolbar);
         topBar.setAlignment(Pos.CENTER_LEFT);
+        topBar.setPadding(new Insets(2, 4, 2, 6));
+
+        collapseMenu();
 
         VBox projectPanel = buildProjectPanel();
         SplitPane centerSplit = new SplitPane(projectPanel, tabPane);
@@ -75,11 +85,14 @@ public class MainWindow {
         BorderPane.setMargin(centerSplit, new Insets(0));
 
         Scene scene = new Scene(root, 1100, 700);
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMainScenePressed);
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, this::onMainSceneKeyPressed);
         DarculaFX.applyDarculaStyle(scene);
         scene.getStylesheets().addAll(
                 getClass().getResource("/styles/tabs.css").toExternalForm(),
                 getClass().getResource("/styles/project.css").toExternalForm(),
-                getClass().getResource("/styles/editor.css").toExternalForm()
+                getClass().getResource("/styles/editor.css").toExternalForm(),
+                getClass().getResource("/styles/menu.css").toExternalForm()
         );
 
         openTabWithContent(DEFAULT_CONTENT, null);
@@ -128,73 +141,168 @@ public class MainWindow {
         HBox toolbar = new HBox(8);
         for (Tool tool : toolRunner.getTools()) {
             Button btn = new Button(tool.getName());
-            btn.setOnAction(e -> {
-                TabInfo info = getActiveTabInfo();
-                if (info == null) {
-                    return;
-                }
-                syncEditorFromTab(info);
-                String filePath = info.getDocumentManager().getAbsolutePath();
-                tool.execute(outputSink, filePath);
-            });
+            btn.setOnAction(e -> runTool(tool, outputSink));
             toolbar.getChildren().add(btn);
         }
         return toolbar;
     }
 
-    private MenuBar buildMenuBar() {
+    /**
+     * Бургер-кнопка: показывает/скрывает главное меню.
+     * Бургер и полное меню занимают одно место: при открытом меню бургер скрыт.
+     */
+    private Button buildBurgerMenu(MenuBar menuBar) {
+        Button burger = new Button();
+        burger.getStyleClass().add("burger-menu");
+        burger.setGraphic(createBurgerIcon());
+        burger.setFocusTraversable(false);
+        burger.setTooltip(new Tooltip("Главное меню"));
+        burger.setOnAction(e -> {
+            if (menuBar.isVisible()) {
+                collapseMenu();
+            } else {
+                expandMenu();
+            }
+        });
+        return burger;
+    }
+
+    private void expandMenu() {
+        burgerButton.setVisible(false);
+        burgerButton.setManaged(false);
+        menuBar.setVisible(true);
+        menuBar.setManaged(true);
+    }
+
+    private void collapseMenu() {
+        burgerButton.setVisible(true);
+        burgerButton.setManaged(true);
+        menuBar.setVisible(false);
+        menuBar.setManaged(false);
+    }
+
+    private void onMainScenePressed(MouseEvent event) {
+        if (menuBar.isVisible() && !isInsideMenuBar(event)) {
+            collapseMenu();
+        }
+    }
+
+    private void onMainSceneKeyPressed(KeyEvent event) {
+        if (menuBar.isVisible() && !isInsideMenuBar(event)) {
+            collapseMenu();
+        }
+    }
+
+    private boolean isInsideMenuBar(InputEvent event) {
+        if (!(event.getTarget() instanceof Node node)) {
+            return false;
+        }
+        Node current = node;
+        while (current != null) {
+            if (current == menuBar) {
+                return true;
+            }
+            current = current.getParent();
+        }
+        return false;
+    }
+
+    /**
+     * Главное меню: «Файл» и «Run».
+     * По умолчанию скрыто, отображается по клику на бургер-кнопку.
+     */
+    private MenuBar buildMenuBar(OutputSink outputSink) {
         MenuBar menuBar = new MenuBar();
         menuBar.useSystemMenuBarProperty().set(false);
 
-        Menu fileMenu = new Menu("Файл");
+        Menu fileMenu = new Menu("File");
 
-        MenuItem newItem = new MenuItem("Новый");
+        MenuItem newItem = new MenuItem("New");
         newItem.setAccelerator(KeyCombination.keyCombination("Ctrl+N"));
         newItem.setOnAction(e -> fileNew());
 
-        MenuItem openItem = new MenuItem("Открыть...");
+        MenuItem openItem = new MenuItem("Open...");
         openItem.setAccelerator(KeyCombination.keyCombination("Ctrl+O"));
         openItem.setOnAction(e -> fileOpen());
 
-        MenuItem saveItem = new MenuItem("Сохранить");
+        MenuItem saveItem = new MenuItem("Save");
         saveItem.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
         saveItem.setOnAction(e -> fileSave());
 
-        MenuItem saveAsItem = new MenuItem("Сохранить как...");
+        MenuItem saveAsItem = new MenuItem("Save As...");
         saveAsItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+S"));
         saveAsItem.setOnAction(e -> fileSaveAs());
 
-        MenuItem openProjectItem = new MenuItem("Открыть проект...");
+        MenuItem openProjectItem = new MenuItem("Open Project...");
         openProjectItem.setOnAction(e -> fileOpenProject());
 
-        SeparatorMenuItem sep1 = new SeparatorMenuItem();
-
-        MenuItem closeTabItem = new MenuItem("Закрыть вкладку");
+        MenuItem closeTabItem = new MenuItem("Close Tab");
         closeTabItem.setAccelerator(KeyCombination.keyCombination("Ctrl+W"));
         closeTabItem.setOnAction(e -> closeActiveTab());
 
-        MenuItem closeOthersItem = new MenuItem("Закрыть другие");
+        MenuItem closeOthersItem = new MenuItem("Close Others");
         closeOthersItem.setOnAction(e -> closeOtherTabs());
 
-        MenuItem closeAllItem = new MenuItem("Закрыть все вкладки");
+        MenuItem closeAllItem = new MenuItem("Close All Tabs");
         closeAllItem.setOnAction(e -> closeAllTabs());
 
-        SeparatorMenuItem sep2 = new SeparatorMenuItem();
-
-        MenuItem exitItem = new MenuItem("Выход");
+        MenuItem exitItem = new MenuItem("Exit");
         exitItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Q"));
         exitItem.setOnAction(e -> stage.close());
 
         fileMenu.getItems().addAll(
                 newItem, openItem, saveItem, saveAsItem,
-                sep1, openProjectItem,
+                new SeparatorMenuItem(),
+                openProjectItem,
                 new SeparatorMenuItem(),
                 closeTabItem, closeOthersItem, closeAllItem,
-                sep2, exitItem
+                new SeparatorMenuItem(),
+                exitItem
         );
-        menuBar.getMenus().add(fileMenu);
 
+        Menu runMenu = new Menu("Run");
+
+        MenuItem lintItem = new MenuItem("Verilator Lint");
+        lintItem.setOnAction(e -> runTool(findTool(VerilatorLintTool.class), outputSink));
+
+        MenuItem simulationItem = new MenuItem("Simulation");
+        simulationItem.setOnAction(e -> runTool(findTool(IcarusSimulationTool.class), outputSink));
+
+        runMenu.getItems().addAll(lintItem, simulationItem);
+
+        menuBar.getMenus().addAll(fileMenu, runMenu);
         return menuBar;
+    }
+
+    private void runTool(Tool tool, OutputSink outputSink) {
+        collapseMenu();
+        TabInfo info = getActiveTabInfo();
+        if (info == null || tool == null) {
+            return;
+        }
+        syncEditorFromTab(info);
+        String filePath = info.getDocumentManager().getAbsolutePath();
+        tool.execute(outputSink, filePath);
+    }
+
+    private Tool findTool(Class<? extends Tool> type) {
+        for (Tool tool : toolRunner.getTools()) {
+            if (type.isInstance(tool)) {
+                return tool;
+            }
+        }
+        return null;
+    }
+
+    private Node createBurgerIcon() {
+        VBox lines = new VBox(4);
+        lines.setAlignment(Pos.CENTER);
+        for (int i = 0; i < 3; i++) {
+            Region line = new Region();
+            line.getStyleClass().add("burger-line");
+            lines.getChildren().add(line);
+        }
+        return lines;
     }
 
     // ================== Вкладки ==================
@@ -267,6 +375,7 @@ public class MainWindow {
     }
 
     private boolean closeTab(TabInfo info) {
+        collapseMenu();
         if (!confirmDiscardIfNeeded(info)) {
             return false;
         }
@@ -318,11 +427,13 @@ public class MainWindow {
     // ================== Файл ==================
 
     private void fileNew() {
+        collapseMenu();
         openTabWithContent(DEFAULT_CONTENT, null);
         updateTitle();
     }
 
     private void fileOpen() {
+        collapseMenu();
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Открыть файл");
         chooser.getExtensionFilters().addAll(
@@ -344,6 +455,7 @@ public class MainWindow {
     }
 
     private void fileOpenProject() {
+        collapseMenu();
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Открыть проект");
         chooser.getExtensionFilters().addAll(
@@ -363,6 +475,7 @@ public class MainWindow {
     }
 
     private void openFileInTab(File file) {
+        collapseMenu();
         for (TabInfo info : openTabs) {
             File openFile = info.getDocumentManager().getCurrentFile();
             if (openFile != null && openFile.equals(file)) {
@@ -379,6 +492,7 @@ public class MainWindow {
     }
 
     private void fileSave() {
+        collapseMenu();
         TabInfo info = getActiveTabInfo();
         if (info == null) {
             return;
@@ -397,6 +511,7 @@ public class MainWindow {
     }
 
     private void fileSaveAs() {
+        collapseMenu();
         TabInfo info = getActiveTabInfo();
         if (info == null) {
             return;

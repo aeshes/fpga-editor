@@ -40,8 +40,69 @@
     -fx-text-fill: #e8e8e8;
 }
 
-.project-tree .tree-cell > .arrow {
-    -fx-background-color: #808080;
+/* Прячем стандартную стрелку JavaFX (заменена шевроном в ProjectCell) */
+.project-tree .tree-cell > .arrow,
+.project-tree .tree-cell .arrow {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-shape: "";
+}
+
+/* Шеврон Bootstrap (› с поворотом при раскрытии) */
+.project-tree .tree-chevron-box {
+    -fx-min-width: 18px;
+    -fx-pref-width: 18px;
+    -fx-min-height: 16px;
+    -fx-pref-height: 16px;
+    -fx-alignment: center;
+}
+
+.project-tree .tree-chevron {
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+    -fx-stroke: #b7bdc6;
+    -fx-stroke-width: 2.2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.project-tree .tree-cell:hover .tree-chevron {
+    -fx-stroke: #e0e0e0;
+}
+
+/* Иконки ячеек дерева */
+.tree-cell-graphic {
+    -fx-spacing: 2;
+}
+
+.project-tree .folder-icon-gray {
+    -fx-fill: #9aa4b2;
+}
+
+.project-tree .folder-icon-blue {
+    -fx-fill: #4b7bec;
+}
+
+.project-tree .file-icon {
+    -fx-min-width: 18px;
+    -fx-pref-width: 18px;
+    -fx-min-height: 16px;
+    -fx-pref-height: 16px;
+    -fx-alignment: center;
+}
+
+.project-tree .file-icon-base {
+    -fx-fill: #4b7bec;
+}
+
+.project-tree .file-icon-v {
+    -fx-stroke: #ffffff;
+    -fx-stroke-width: 1.8;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
 }
 
 .project-tree .project-tree-root {
