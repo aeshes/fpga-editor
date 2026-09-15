@@ -1,11 +1,11 @@
 /* Панель обозревателя проекта в духе IntelliJ IDEA (Darcula) */
 
 .project-panel {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: #23262c;
 }
 
 .project-panel-header {
-    -fx-background-color: #313335;
+    -fx-background-color: #1f2328;
     -fx-text-fill: #bbbbbb;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
@@ -13,7 +13,7 @@
 }
 
 .project-tree {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: #23262c;
     -fx-background-insets: 0;
     -fx-padding: 2 0 0 0;
 }
@@ -21,7 +21,7 @@
 .project-tree .virtual-flow,
 .project-tree .virtual-flow .clipped-container,
 .project-tree .virtual-flow .sheet {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: #23262c;
 }
 
 .project-tree .tree-cell {
@@ -32,7 +32,7 @@
 }
 
 .project-tree .tree-cell:filled:hover {
-    -fx-background-color: #323232;
+    -fx-background-color: #3a3a3a;
 }
 
 .project-tree .tree-cell:filled:selected {

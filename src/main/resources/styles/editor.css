@@ -1,0 +1,74 @@
+/* Тёмная тема редактора кода: chrome в гамме IntelliJ Darcula,
+   палитра токенов Verilog сохранена (Vivado, фиолетовая). */
+
+.verilog-code-area {
+    -fx-font-family: "Consolas", "DejaVu Sans Mono", "Liberation Mono", monospace;
+    -fx-font-size: 13px;
+    -fx-background-color: #23272c;
+    -fx-highlight-fill: rgba(169, 183, 198, 0.16);
+    -fx-highlight-text-fill: #d4d4d4;
+}
+
+/* Текст по умолчанию (идентификаторы, нераспознанные токены).
+   Свойство -fx-fill задаётся ниже токен-классов, поэтому переопределяется. */
+.verilog-code-area .text {
+    -fx-fill: #d4d4d4;
+}
+
+/* Каретка */
+.verilog-code-area .caret {
+    -fx-stroke: #d4d4d4;
+}
+
+/* Токены */
+.verilog-code-area .keyword {
+    -fx-fill: #a855f7;
+}
+
+.verilog-code-area .type {
+    -fx-fill: #d0a2ff;
+}
+
+.verilog-code-area .number {
+    -fx-fill: #c3a6ff;
+}
+
+.verilog-code-area .string {
+    -fx-fill: #e8a9d8;
+}
+
+.verilog-code-area .comment {
+    -fx-fill: #7f7f9e;
+    -fx-font-style: italic;
+}
+
+.verilog-code-area .directive {
+    -fx-fill: #cba6f7;
+}
+
+.verilog-code-area .systemtask {
+    -fx-fill: #d189f0;
+}
+
+.verilog-code-area .operator {
+    -fx-fill: #b0a6d0;
+}
+
+.verilog-code-area .delimiter {
+    -fx-fill: #808080;
+}
+
+/* Подсветка текущей строки */
+.verilog-code-area .paragraph-box:has-caret {
+    -fx-background-color: #2a2a2b;
+}
+
+/* Номера строк */
+.verilog-code-area .lineno {
+    -fx-text-fill: #69696b;
+    -fx-background-color: transparent;
+    -fx-padding: 0 8px 0 4px;
+    -fx-alignment: TOP_RIGHT;
+    -fx-font-family: "Consolas", "DejaVu Sans Mono", monospace;
+    -fx-font-size: 11px;
+}
