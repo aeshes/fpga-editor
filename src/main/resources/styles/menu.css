@@ -22,3 +22,73 @@
     -fx-min-height: 2px;
     -fx-pref-height: 2px;
 }
+
+/* Строка меню внутри верхней полосы повторяет её цвет */
+
+.top-bar > .menu-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.top-bar > .menu-bar > .container > .menu-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4px;
+    -fx-padding: 5 10 5 10;
+}
+
+.top-bar > .menu-bar > .container > .menu-button:showing,
+.top-bar > .menu-bar > .container > .menu-button:hover,
+.top-bar > .menu-bar > .container > .menu-button:focused {
+    -fx-background-color: #2b2f36;
+}
+
+.top-bar > .menu-bar > .container > .menu-button > .label {
+    -fx-text-fill: #a9b7c6;
+    -fx-font-size: 13px;
+}
+
+.top-bar > .menu-bar > .container > .menu-button:showing > .label,
+.top-bar > .menu-bar > .container > .menu-button:hover > .label,
+.top-bar > .menu-bar > .container > .menu-button:focused > .label {
+    -fx-text-fill: #ffffff;
+}
+
+/* Всплывающие меню File/Run в палитре верхней полосы */
+
+.context-menu {
+    -fx-background-color: #23262c;
+    -fx-background-radius: 8px;
+    -fx-border-color: #33363c;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 12, 0, 0, 4);
+}
+
+.context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 4px;
+    -fx-padding: 6 24 6 12;
+}
+
+.context-menu .menu-item:hover,
+.context-menu .menu-item:focused {
+    -fx-background-color: #2f3239;
+}
+
+.context-menu .menu-item .label {
+    -fx-text-fill: #a9b7c6;
+    -fx-font-size: 13px;
+}
+
+.context-menu .menu-item:hover .label,
+.context-menu .menu-item:focused .label {
+    -fx-text-fill: #ffffff;
+}
+
+.context-menu .separator:horizontal .line {
+    -fx-border-color: #33363c transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-background-color: transparent;
+}

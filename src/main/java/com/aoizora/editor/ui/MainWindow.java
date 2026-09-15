@@ -74,7 +74,7 @@ public class MainWindow {
         toolRoom.setRight(buildToolStrip(46, 0, "tool-strip-right"));
         toolRoom.setBottom(buildToolStrip(0, 26, "tool-strip-bottom"));
 
-        Scene scene = new Scene(toolRoom, 1100, 700);
+        Scene scene = new Scene(toolRoom, 1650, 1050);
         DarculaFX.applyDarculaStyle(scene);
         scene.getStylesheets().addAll(
                 getClass().getResource("/styles/tabs.css").toExternalForm(),
