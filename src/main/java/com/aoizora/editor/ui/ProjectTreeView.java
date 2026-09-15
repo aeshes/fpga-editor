@@ -152,16 +152,10 @@ public class ProjectTreeView extends TreeView<ProjectTreeView.ProjectNode> {
 
 private static class ProjectCell extends TreeCell<ProjectNode> {
 
-        private static final String CHEVRON_PATH =
-                "M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708"
-                        + "l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708";
-
-        private static final String FILE_ICON_BASE =
-                "M5.5.5v2.5h1V.5zM9.5.5v2.5h1V.5zM5.5 13v2.5h1V13zM9.5 13v2.5h1V13z"
-                        + "M.5 5.5h2.5v1H.5zM.5 9.5h2.5v1H.5zM13 5.5h2.5v1H13zM13 9.5h2.5v1H13z"
-                        + "M4 2.5h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z";
-        private static final String FILE_ICON_DIE = "M6 6h4v4H6z";
-        private static final String FOLDER_ICON = "M1 3.5h4.2l1.3 1.4H15v7.6H1z";
+        private static final String CHEVRON_PATH   = SvgIcons.pathData("chevron-right").get(0);
+        private static final String FILE_ICON_BASE = SvgIcons.pathData("file-chip-body").get(0);
+        private static final String FILE_ICON_DIE  = SvgIcons.pathData("file-chip-die").get(0);
+        private static final String FOLDER_ICON    = SvgIcons.pathData("folder").get(0);
 
         private final SVGPath chevron = new SVGPath();
         private final StackPane chevronBox = new StackPane(chevron);
