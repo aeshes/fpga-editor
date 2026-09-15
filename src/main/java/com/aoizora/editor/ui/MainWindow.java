@@ -1,11 +1,14 @@
 package com.aoizora.editor.ui;
 
 import com.aoizora.editor.document.DocumentManager;
+import com.aoizora.editor.language.VerilogLanguage;
 import com.aoizora.editor.project.Project;
 import com.aoizora.editor.project.ProjectParser;
 import com.aoizora.editor.tools.*;
 import com.github.mouse0w0.darculafx.DarculaFX;
 import eu.mihosoft.monacofx.MonacoFX;
+import eu.mihosoft.monacofx.EditorTheme;
+import eu.mihosoft.monacofx.Rule;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -263,9 +266,31 @@ public class MainWindow {
 
     private MonacoFX createConfiguredEditor() {
         MonacoFX editor = new MonacoFX();
-        editor.getEditor().setCurrentTheme("vs-dark");
+        editor.getEditor().registerLanguage(new VerilogLanguage());
+        editor.getEditor().registerTheme(buildVivadoTheme());
+        editor.getEditor().setCurrentTheme("vivado-dark");
         editor.getEditor().setCurrentLanguage("verilog");
         return editor;
+    }
+
+    /**
+     * Тёмная тема редактора с фиолетовой палитрой,
+     * как в Vivado (Xilinx) по умолчанию.
+     * Палитра токенов собрана в одном месте для лёгкой корректировки.
+     */
+    private EditorTheme buildVivadoTheme() {
+        return new EditorTheme("vivado-dark", "vs-dark", true,
+                new Rule("comment", "#7f7f9e"),
+                new Rule("keyword", "#a855f7"),
+                new Rule("keyword.other.directive", "#cba6f7"),
+                new Rule("keyword.other.systemtask", "#d189f0"),
+                new Rule("keyword.other.operator", "#b0a6d0"),
+                new Rule("type", "#d0a2ff"),
+                new Rule("string", "#e8a9d8"),
+                new Rule("number", "#c3a6ff"),
+                new Rule("identifier", "#e3e3e3"),
+                new Rule("delimiter", "#808080")
+        );
     }
 
     private boolean closeTab(TabInfo info) {
