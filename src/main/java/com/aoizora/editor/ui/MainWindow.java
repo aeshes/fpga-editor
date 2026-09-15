@@ -95,7 +95,7 @@ public class MainWindow {
         root.setTop(topBar);
         root.setCenter(centerCard);
         root.setBottom(outputArea);
-        BorderPane.setMargin(topBar, new Insets(6, 6, 0, 6));
+        BorderPane.setMargin(topBar, Insets.EMPTY);
         BorderPane.setMargin(centerCard, new Insets(0, 6, 0, 6));
         BorderPane.setMargin(outputArea, new Insets(4, 6, 6, 6));
 
