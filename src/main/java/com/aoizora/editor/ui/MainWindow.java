@@ -1,14 +1,11 @@
 package com.aoizora.editor.ui;
 
 import com.aoizora.editor.document.DocumentManager;
-import com.aoizora.editor.language.VerilogLanguage;
+import com.aoizora.editor.language.VerilogCodeArea;
 import com.aoizora.editor.project.Project;
 import com.aoizora.editor.project.ProjectParser;
 import com.aoizora.editor.tools.*;
 import com.github.mouse0w0.darculafx.DarculaFX;
-import eu.mihosoft.monacofx.MonacoFX;
-import eu.mihosoft.monacofx.EditorTheme;
-import eu.mihosoft.monacofx.Rule;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -81,7 +78,8 @@ public class MainWindow {
         DarculaFX.applyDarculaStyle(scene);
         scene.getStylesheets().addAll(
                 getClass().getResource("/styles/tabs.css").toExternalForm(),
-                getClass().getResource("/styles/project.css").toExternalForm()
+                getClass().getResource("/styles/project.css").toExternalForm(),
+                getClass().getResource("/styles/editor.css").toExternalForm()
         );
 
         openTabWithContent(DEFAULT_CONTENT, null);
@@ -201,10 +199,10 @@ public class MainWindow {
 
     // ================== Вкладки ==================
 
-    private TabInfo createTab(DocumentManager documentManager, MonacoFX editor, String label) {
+    private TabInfo createTab(DocumentManager documentManager, VerilogCodeArea editor, String label) {
         Tab tab = new Tab();
         tab.setClosable(false);
-        tab.setContent(editor);
+        tab.setContent(editor.getNode());
 
         Label title = new Label(label);
         title.getStyleClass().add("hard-tab-title");
@@ -252,7 +250,7 @@ public class MainWindow {
     }
 
     private void openTabWithContent(String content, File file) {
-        MonacoFX editor = createConfiguredEditor();
+        VerilogCodeArea editor = createConfiguredEditor();
         DocumentManager dm = new DocumentManager();
         dm.setContent(content);
         if (file != null) {
@@ -264,33 +262,8 @@ public class MainWindow {
         syncEditorFromTab(info);
     }
 
-    private MonacoFX createConfiguredEditor() {
-        MonacoFX editor = new MonacoFX();
-        editor.getEditor().registerLanguage(new VerilogLanguage());
-        editor.getEditor().registerTheme(buildVivadoTheme());
-        editor.getEditor().setCurrentTheme("vivado-dark");
-        editor.getEditor().setCurrentLanguage("verilog");
-        return editor;
-    }
-
-    /**
-     * Тёмная тема редактора с фиолетовой палитрой,
-     * как в Vivado (Xilinx) по умолчанию.
-     * Палитра токенов собрана в одном месте для лёгкой корректировки.
-     */
-    private EditorTheme buildVivadoTheme() {
-        return new EditorTheme("vivado-dark", "vs-dark", true,
-                new Rule("comment", "#7f7f9e"),
-                new Rule("keyword", "#a855f7"),
-                new Rule("keyword.other.directive", "#cba6f7"),
-                new Rule("keyword.other.systemtask", "#d189f0"),
-                new Rule("keyword.other.operator", "#b0a6d0"),
-                new Rule("type", "#d0a2ff"),
-                new Rule("string", "#e8a9d8"),
-                new Rule("number", "#c3a6ff"),
-                new Rule("identifier", "#e3e3e3"),
-                new Rule("delimiter", "#808080")
-        );
+    private VerilogCodeArea createConfiguredEditor() {
+        return new VerilogCodeArea();
     }
 
     private boolean closeTab(TabInfo info) {
@@ -327,7 +300,7 @@ public class MainWindow {
 
     private boolean confirmDiscardIfNeeded(TabInfo info) {
         String docContent = info.getDocumentManager().getContent();
-        String editorContent = info.getEditor().getEditor().getDocument().getText();
+        String editorContent = info.getEditor().getText();
         boolean dirty = !docContent.equals(editorContent);
         if (!dirty) {
             return true;
@@ -458,14 +431,14 @@ public class MainWindow {
     // ================== Синхронизация ==================
 
     private void syncEditorFromTab(TabInfo info) {
-        info.getEditor().getEditor().getDocument().setText(
+        info.getEditor().replaceText(
                 info.getDocumentManager().getContent()
         );
     }
 
     private void syncTabFromEditor(TabInfo info) {
         info.getDocumentManager().setContent(
-                info.getEditor().getEditor().getDocument().getText()
+                info.getEditor().getText()
         );
     }
 

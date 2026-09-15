@@ -1,7 +1,7 @@
 package com.aoizora.editor.ui;
 
 import com.aoizora.editor.document.DocumentManager;
-import eu.mihosoft.monacofx.MonacoFX;
+import com.aoizora.editor.language.VerilogCodeArea;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
@@ -9,11 +9,11 @@ import javafx.scene.control.Tooltip;
 public class TabInfo {
 
     private final Tab tab;
-    private final MonacoFX editor;
+    private final VerilogCodeArea editor;
     private final DocumentManager documentManager;
     private final Label titleLabel;
 
-    public TabInfo(Tab tab, MonacoFX editor, DocumentManager documentManager, Label titleLabel) {
+    public TabInfo(Tab tab, VerilogCodeArea editor, DocumentManager documentManager, Label titleLabel) {
         this.tab = tab;
         this.editor = editor;
         this.documentManager = documentManager;
@@ -24,7 +24,7 @@ public class TabInfo {
         return tab;
     }
 
-    public MonacoFX getEditor() {
+    public VerilogCodeArea getEditor() {
         return editor;
     }
 
