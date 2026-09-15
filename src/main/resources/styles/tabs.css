@@ -1,11 +1,12 @@
 /* Базовые стили вкладок в духе IntelliJ IDEA (Darcula) */
 
 .hard-tab-pane {
-    -fx-background-color: #23262c;
+    -fx-background-color: #181b1f;
 }
 
 .hard-tab-pane .tab-header-background {
-    -fx-background-color: #23262c;
+    -fx-background-color: #181b1f;
+    -fx-background-radius: 0 6 0 0;
 }
 
 .hard-tab-pane .tab-header-area {
@@ -28,7 +29,7 @@
 }
 
 .hard-tab-pane .tab:selected {
-    -fx-background-color: #1f2328;
+    -fx-background-color: #17191d;
     -fx-border-color: transparent transparent #ebb662 transparent;
     -fx-border-width: 0 0 2 0;
 }
@@ -38,7 +39,8 @@
 }
 
 .hard-tab-pane .tab-content-area {
-    -fx-background-color: #23262c;
+    -fx-background-color: #181b1f;
+    -fx-background-radius: 0 0 6 6;
 }
 
 .hard-tab-pane:focused {

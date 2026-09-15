@@ -4,7 +4,7 @@
 .verilog-code-area {
     -fx-font-family: "Consolas", "DejaVu Sans Mono", "Liberation Mono", monospace;
     -fx-font-size: 13px;
-    -fx-background-color: #23272c;
+    -fx-background-color: #181b1f;
     -fx-highlight-fill: rgba(169, 183, 198, 0.16);
     -fx-highlight-text-fill: #d4d4d4;
 }

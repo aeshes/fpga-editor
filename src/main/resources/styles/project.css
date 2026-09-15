@@ -1,11 +1,12 @@
 /* Панель обозревателя проекта в духе IntelliJ IDEA (Darcula) */
 
 .project-panel {
-    -fx-background-color: #23262c;
+    -fx-background-color: #181b1f;
 }
 
 .project-panel-header {
-    -fx-background-color: #1f2328;
+    -fx-background-color: #17191d;
+    -fx-background-radius: 6 0 0 0;
     -fx-text-fill: #bbbbbb;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
@@ -13,7 +14,7 @@
 }
 
 .project-tree {
-    -fx-background-color: #23262c;
+    -fx-background-color: #181b1f;
     -fx-background-insets: 0;
     -fx-padding: 2 0 0 0;
 }
@@ -21,7 +22,7 @@
 .project-tree .virtual-flow,
 .project-tree .virtual-flow .clipped-container,
 .project-tree .virtual-flow .sheet {
-    -fx-background-color: #23262c;
+    -fx-background-color: #181b1f;
 }
 
 .project-tree .tree-cell {

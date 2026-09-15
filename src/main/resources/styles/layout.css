@@ -1,0 +1,113 @@
+/* Каркас окна и скруглённые карточки (как в IntelliJ IDEA) */
+
+.tool-room {
+    -fx-background-color: #17191d;
+}
+
+.tool-strip {
+    -fx-background-color: #23262c;
+}
+
+.tool-strip-left {
+    -fx-background-radius: 12 0 0 12;
+}
+
+.tool-strip-right {
+    -fx-background-radius: 0 12 12 0;
+}
+
+.tool-strip-bottom {
+    -fx-background-radius: 0 0 12 12;
+}
+
+/* Верхняя панель с бургером и тулбаром */
+.top-bar {
+    -fx-background-color: #181b1f;
+    -fx-background-radius: 12;
+}
+
+/* Обёртка вокруг SplitPane редактора */
+.center-card {
+    -fx-background-color: #181b1f;
+    -fx-background-radius: 12;
+}
+
+.center-card .main-split {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.center-card .main-split .split-pane-divider {
+    -fx-background-color: #252a31;
+    -fx-padding: 0 1 0 1;
+}
+
+/* Нижняя панель вывода */
+.output-area {
+    -fx-control-inner-background: #17191d;
+    -fx-background-color: #181b1f;
+    -fx-background-radius: 12;
+    -fx-text-fill: #a9b7c6;
+    -fx-font-family: "Consolas", "DejaVu Sans Mono", monospace;
+    -fx-font-size: 12px;
+}
+
+.output-area .content {
+    -fx-background-color: #17191d;
+    -fx-background-radius: 12;
+}
+
+/* Кнопки управления безрамочным окном */
+.window-controls {
+    -fx-background-radius: 0 12 0 0;
+}
+
+.window-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-text-fill: #a9b7c6;
+    -fx-font-size: 13px;
+    -fx-min-width: 38px;
+    -fx-pref-width: 38px;
+    -fx-min-height: 26px;
+    -fx-pref-height: 26px;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.window-button:hover {
+    -fx-background-color: #2b2f36;
+}
+
+.window-button:armed {
+    -fx-background-color: #3a3f47;
+}
+
+.window-close:hover {
+    -fx-background-color: #e81123;
+    -fx-text-fill: white;
+}
+
+.window-close:armed {
+    -fx-background-color: #f1707a;
+    -fx-text-fill: white;
+}
+
+/* Кнопки инструментов на верхней панели */
+.tool-button {
+    -fx-background-color: #23262c;
+    -fx-background-radius: 8;
+    -fx-text-fill: #a9b7c6;
+    -fx-cursor: hand;
+    -fx-padding: 4 10 4 10;
+}
+
+.tool-button:hover {
+    -fx-background-color: #2b2f36;
+}
+
+.tool-button:armed {
+    -fx-background-color: #46506b;
+}

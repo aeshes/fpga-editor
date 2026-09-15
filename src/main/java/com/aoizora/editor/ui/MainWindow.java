@@ -8,6 +8,8 @@ import com.aoizora.editor.tools.*;
 import com.github.mouse0w0.darculafx.DarculaFX;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -19,14 +21,17 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainWindow {
 
@@ -45,6 +50,9 @@ public class MainWindow {
     private int untitledCounter = 1;
     private MenuBar menuBar;
     private Button burgerButton;
+    private Button maxButton;
+    private boolean maximized;
+    private double windowX, windowY, windowWidth, windowHeight;
 
     public MainWindow(Stage stage) {
         this.stage = stage;
@@ -65,9 +73,11 @@ public class MainWindow {
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox topBar = new HBox(burgerButton, menuBar, spacer, toolbar);
+        HBox windowControls = buildWindowControls();
+        HBox topBar = new HBox(burgerButton, menuBar, spacer, toolbar, windowControls);
         topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setPadding(new Insets(2, 4, 2, 6));
+        topBar.setPadding(new Insets(2, 6, 2, 6));
+        topBar.getStyleClass().add("top-bar");
 
         collapseMenu();
 
@@ -77,14 +87,26 @@ public class MainWindow {
         centerSplit.getStyleClass().add("main-split");
         SplitPane.setResizableWithParent(projectPanel, false);
 
+        StackPane centerCard = new StackPane(centerSplit);
+        centerCard.getStyleClass().add("center-card");
+        centerCard.setPadding(new Insets(6));
+
         BorderPane root = new BorderPane();
         root.setTop(topBar);
-        root.setCenter(centerSplit);
+        root.setCenter(centerCard);
         root.setBottom(outputArea);
-        BorderPane.setMargin(outputArea, new Insets(4));
-        BorderPane.setMargin(centerSplit, new Insets(0));
+        BorderPane.setMargin(topBar, new Insets(6, 6, 0, 6));
+        BorderPane.setMargin(centerCard, new Insets(0, 6, 0, 6));
+        BorderPane.setMargin(outputArea, new Insets(4, 6, 6, 6));
 
-        Scene scene = new Scene(root, 1100, 700);
+        BorderPane toolRoom = new BorderPane();
+        toolRoom.getStyleClass().add("tool-room");
+        toolRoom.setCenter(root);
+        toolRoom.setLeft(buildToolStrip(46, 0, "tool-strip-left"));
+        toolRoom.setRight(buildToolStrip(46, 0, "tool-strip-right"));
+        toolRoom.setBottom(buildToolStrip(0, 26, "tool-strip-bottom"));
+
+        Scene scene = new Scene(toolRoom, 1100, 700);
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMainScenePressed);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::onMainSceneKeyPressed);
         DarculaFX.applyDarculaStyle(scene);
@@ -92,8 +114,16 @@ public class MainWindow {
                 getClass().getResource("/styles/tabs.css").toExternalForm(),
                 getClass().getResource("/styles/project.css").toExternalForm(),
                 getClass().getResource("/styles/editor.css").toExternalForm(),
-                getClass().getResource("/styles/menu.css").toExternalForm()
+                getClass().getResource("/styles/menu.css").toExternalForm(),
+                getClass().getResource("/styles/layout.css").toExternalForm()
         );
+        installWindowResizing(scene, topBar);
+
+        topBar.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2 && !isInsideControl(e.getTarget())) {
+                toggleMaximize();
+            }
+        });
 
         openTabWithContent(DEFAULT_CONTENT, null);
         updateTitle();
@@ -121,6 +151,7 @@ public class MainWindow {
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
         outputArea.setPromptText("Вывод Verilator / Icarus будет отображаться здесь...");
+        outputArea.getStyleClass().add("output-area");
         return outputArea;
     }
 
@@ -137,14 +168,255 @@ public class MainWindow {
         return panel;
     }
 
+    private Region buildToolStrip(double minWidth, double minHeight, String sideClass) {
+        Region strip = new Region();
+        strip.getStyleClass().addAll("tool-strip", sideClass);
+        if (minWidth > 0) {
+            strip.setMinWidth(minWidth);
+            strip.setPrefWidth(minWidth);
+        }
+        if (minHeight > 0) {
+            strip.setMinHeight(minHeight);
+            strip.setPrefHeight(minHeight);
+        }
+        return strip;
+    }
+
     private HBox buildToolbar(OutputSink outputSink) {
         HBox toolbar = new HBox(8);
         for (Tool tool : toolRunner.getTools()) {
             Button btn = new Button(tool.getName());
+            btn.getStyleClass().add("tool-button");
             btn.setOnAction(e -> runTool(tool, outputSink));
             toolbar.getChildren().add(btn);
         }
         return toolbar;
+    }
+
+    // ================== Управление безрамочным окном ==================
+
+    private HBox buildWindowControls() {
+        Button minButton = new Button("\u2013");
+        minButton.getStyleClass().addAll("window-button", "window-min");
+        minButton.setTooltip(new Tooltip("Свернуть"));
+        minButton.setOnAction(e -> stage.setIconified(true));
+
+        maxButton = new Button("\u25A1");
+        maxButton.getStyleClass().addAll("window-button", "window-max");
+        maxButton.setTooltip(new Tooltip("Развернуть"));
+        maxButton.setOnAction(e -> toggleMaximize());
+
+        Button closeButton = new Button("\u2715");
+        closeButton.getStyleClass().addAll("window-button", "window-close");
+        closeButton.setTooltip(new Tooltip("Закрыть"));
+        closeButton.setOnAction(e -> stage.close());
+
+        HBox controls = new HBox(2, minButton, maxButton, closeButton);
+        controls.setAlignment(Pos.CENTER);
+        controls.getStyleClass().add("window-controls");
+        return controls;
+    }
+
+    private void toggleMaximize() {
+        if (maximized) {
+            stage.setX(windowX);
+            stage.setY(windowY);
+            stage.setWidth(windowWidth);
+            stage.setHeight(windowHeight);
+            maximized = false;
+            updateMaxButton();
+            return;
+        }
+        windowX = stage.getX();
+        windowY = stage.getY();
+        windowWidth = stage.getWidth();
+        windowHeight = stage.getHeight();
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        stage.setX(bounds.getMinX());
+        stage.setY(bounds.getMinY());
+        stage.setWidth(bounds.getWidth());
+        stage.setHeight(bounds.getHeight());
+        maximized = true;
+        updateMaxButton();
+    }
+
+    private void updateMaxButton() {
+        if (maximized) {
+            maxButton.setText("\u2750");
+            maxButton.setTooltip(new Tooltip("Свернуть в окно"));
+        } else {
+            maxButton.setText("\u25A1");
+            maxButton.setTooltip(new Tooltip("Развернуть"));
+        }
+    }
+
+    private boolean isInsideControl(Object target) {
+        Node node = target instanceof Node ? (Node) target : null;
+        while (node != null) {
+            if (node instanceof Control) {
+                return true;
+            }
+            node = node.getParent();
+        }
+        return false;
+    }
+
+    private boolean isInsideNode(Object target, Node container) {
+        Node node = target instanceof Node ? (Node) target : null;
+        while (node != null) {
+            if (node == container) {
+                return true;
+            }
+            node = node.getParent();
+        }
+        return false;
+    }
+
+    private void installWindowResizing(Scene scene, HBox topBar) {
+        double threshold = 4;
+        AtomicReference<ResizeDir> dir = new AtomicReference<>(ResizeDir.NONE);
+        AtomicReference<ResizeDir> prevDir = new AtomicReference<>(ResizeDir.NONE);
+        AtomicReference<double[]> start = new AtomicReference<>();
+        AtomicReference<double[]> bounds = new AtomicReference<>();
+        AtomicReference<double[]> dragOffset = new AtomicReference<>();
+
+        scene.setOnMouseMoved(e -> {
+            ResizeDir d = edgeAt(e.getSceneX(), e.getSceneY(), threshold, maximized);
+            if (d == ResizeDir.NONE) {
+                if (prevDir.get() != ResizeDir.NONE) {
+                    scene.setCursor(Cursor.DEFAULT);
+                    prevDir.set(d);
+                }
+                dir.set(d);
+                return;
+            }
+            dir.set(d);
+            if (prevDir.get() != d) {
+                scene.setCursor(cursorFor(d));
+            }
+            prevDir.set(d);
+        });
+
+        scene.setOnMousePressed(e -> {
+            ResizeDir d = edgeAt(e.getSceneX(), e.getSceneY(), threshold, maximized);
+            if (d != ResizeDir.NONE) {
+                start.set(new double[]{e.getSceneX(), e.getSceneY()});
+                bounds.set(new double[]{stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()});
+                dir.set(d);
+                dragOffset.set(null);
+                e.consume();
+                return;
+            }
+            if (!maximized && isInsideNode(e.getTarget(), topBar)) {
+                dragOffset.set(new double[]{
+                        e.getScreenX() - stage.getX(),
+                        e.getScreenY() - stage.getY()
+                });
+            } else {
+                dragOffset.set(null);
+            }
+        });
+
+        scene.setOnMouseDragged(e -> {
+            ResizeDir d = dir.get();
+            if (d != ResizeDir.NONE && start.get() != null && bounds.get() != null) {
+                double dx = e.getSceneX() - start.get()[0];
+                double dy = e.getSceneY() - start.get()[1];
+                double[] b = bounds.get();
+                double x = b[0], y = b[1], w = b[2], h = b[3];
+                double MIN_W = 640, MIN_H = 420;
+                if (d.left) {
+                    double nw = w - dx;
+                    if (nw >= MIN_W) {
+                        x = b[0] + dx;
+                        w = nw;
+                    }
+                } else if (d.right) {
+                    double nw = w + dx;
+                    if (nw >= MIN_W) {
+                        w = nw;
+                    }
+                }
+                if (d.top) {
+                    double nh = h - dy;
+                    if (nh >= MIN_H) {
+                        y = b[1] + dy;
+                        h = nh;
+                    }
+                } else if (d.bottom) {
+                    double nh = h + dy;
+                    if (nh >= MIN_H) {
+                        h = nh;
+                    }
+                }
+                stage.setX(x);
+                stage.setY(y);
+                stage.setWidth(w);
+                stage.setHeight(h);
+                return;
+            }
+            double[] grab = dragOffset.get();
+            if (grab != null && !maximized) {
+                stage.setX(e.getScreenX() - grab[0]);
+                stage.setY(e.getScreenY() - grab[1]);
+            }
+        });
+
+        scene.setOnMouseReleased(e -> {
+            dir.set(ResizeDir.NONE);
+            prevDir.set(ResizeDir.NONE);
+            start.set(null);
+            bounds.set(null);
+            dragOffset.set(null);
+            scene.setCursor(Cursor.DEFAULT);
+        });
+    }
+
+    private ResizeDir edgeAt(double x, double y, double threshold, boolean disabled) {
+        if (disabled) {
+            return ResizeDir.NONE;
+        }
+        double w = stage.getWidth();
+        double h = stage.getHeight();
+        boolean left = x <= threshold;
+        boolean right = x >= w - threshold;
+        boolean top = y <= threshold;
+        boolean bottom = y >= h - threshold;
+        if (!left && !right && !top && !bottom) {
+            return ResizeDir.NONE;
+        }
+        return new ResizeDir(left, right, top, bottom);
+    }
+
+    private Cursor cursorFor(ResizeDir d) {
+        if (d.left && d.top || d.right && d.bottom) {
+            return Cursor.NW_RESIZE;
+        }
+        if (d.right && d.top || d.left && d.bottom) {
+            return Cursor.NE_RESIZE;
+        }
+        if (d.left || d.right) {
+            return Cursor.H_RESIZE;
+        }
+        if (d.top || d.bottom) {
+            return Cursor.V_RESIZE;
+        }
+        return Cursor.DEFAULT;
+    }
+
+    private static final class ResizeDir {
+        static final ResizeDir NONE = new ResizeDir(false, false, false, false);
+        final boolean left;
+        final boolean right;
+        final boolean top;
+        final boolean bottom;
+
+        ResizeDir(boolean left, boolean right, boolean top, boolean bottom) {
+            this.left = left;
+            this.right = right;
+            this.top = top;
+            this.bottom = bottom;
+        }
     }
 
     /**
