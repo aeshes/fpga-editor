@@ -27,7 +27,7 @@
 .project-tree .tree-cell {
     -fx-background-color: transparent;
     -fx-text-fill: #a9b7c6;
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
     -fx-padding: 1 4 1 4;
     -fx-indent: 16px;
 }
@@ -81,18 +81,32 @@
 
 .project-tree .folder-icon-gray {
     -fx-fill: #9aa4b2;
+    -fx-stroke: #dfe3ea;
+    -fx-stroke-width: 1.1;
+    -fx-stroke-line-join: round;
 }
 
 .project-tree .folder-icon-blue {
     -fx-fill: #4b7bec;
+    -fx-stroke: #9fd4ff;
+    -fx-stroke-width: 1.1;
+    -fx-stroke-line-join: round;
 }
 
 .project-tree .file-icon {
-    -fx-min-width: 18px;
-    -fx-pref-width: 18px;
-    -fx-min-height: 16px;
-    -fx-pref-height: 16px;
+    -fx-min-width: 22px;
+    -fx-pref-width: 22px;
+    -fx-min-height: 20px;
+    -fx-pref-height: 20px;
     -fx-alignment: center;
+}
+
+.project-tree .file-icon-base,
+.project-tree .file-icon-die,
+.project-tree .folder-icon-gray,
+.project-tree .folder-icon-blue {
+    -fx-scale-x: 1.25;
+    -fx-scale-y: 1.25;
 }
 
 .project-tree .file-icon-base {
