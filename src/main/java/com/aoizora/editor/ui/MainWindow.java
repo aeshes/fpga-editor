@@ -13,6 +13,8 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -102,7 +104,7 @@ public class MainWindow {
         BorderPane toolRoom = new BorderPane();
         toolRoom.getStyleClass().add("tool-room");
         toolRoom.setCenter(root);
-        toolRoom.setLeft(buildToolStrip(46, 0, "tool-strip-left"));
+        toolRoom.setLeft(buildLeftStripWithIcon());
         toolRoom.setRight(buildToolStrip(46, 0, "tool-strip-right"));
         toolRoom.setBottom(buildToolStrip(0, 26, "tool-strip-bottom"));
 
@@ -179,6 +181,21 @@ public class MainWindow {
             strip.setMinHeight(minHeight);
             strip.setPrefHeight(minHeight);
         }
+        return strip;
+    }
+
+    private Region buildLeftStripWithIcon() {
+        VBox strip = new VBox(14);
+        strip.getStyleClass().addAll("tool-strip", "tool-strip-left");
+        strip.setMinWidth(46);
+        strip.setPrefWidth(46);
+        strip.setAlignment(Pos.TOP_CENTER);
+        strip.setPadding(new Insets(12, 0, 0, 0));
+        ImageView appIcon = new ImageView(new Image(
+                getClass().getResourceAsStream("/images/app-icon-24.png")));
+        appIcon.setFitWidth(24);
+        appIcon.setFitHeight(24);
+        strip.getChildren().add(appIcon);
         return strip;
     }
 
