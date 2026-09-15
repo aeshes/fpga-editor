@@ -1,6 +1,8 @@
 package com.aoizora.editor.ui;
 
 import com.aoizora.editor.document.DocumentManager;
+import com.aoizora.editor.project.Project;
+import com.aoizora.editor.project.ProjectParser;
 import com.aoizora.editor.tools.*;
 import com.github.mouse0w0.darculafx.DarculaFX;
 import eu.mihosoft.monacofx.MonacoFX;
@@ -13,6 +15,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -32,13 +35,17 @@ public class MainWindow {
     private final Stage stage;
     private final ToolRunner toolRunner;
     private final TabPane tabPane;
+    private final ProjectTreeView projectTree;
     private final List<TabInfo> openTabs = new ArrayList<>();
+    private Project currentProject;
     private int untitledCounter = 1;
 
     public MainWindow(Stage stage) {
         this.stage = stage;
         this.toolRunner = new ToolRunner();
         this.tabPane = buildTabPane();
+        this.projectTree = new ProjectTreeView();
+        this.projectTree.setOnOpenFile(this::openFileInTab);
     }
 
     public void show() {
@@ -54,17 +61,24 @@ public class MainWindow {
         HBox topBar = new HBox(menuBar, spacer, toolbar);
         topBar.setAlignment(Pos.CENTER_LEFT);
 
+        VBox projectPanel = buildProjectPanel();
+        SplitPane centerSplit = new SplitPane(projectPanel, tabPane);
+        centerSplit.setDividerPositions(0.22);
+        centerSplit.getStyleClass().add("main-split");
+        SplitPane.setResizableWithParent(projectPanel, false);
+
         BorderPane root = new BorderPane();
         root.setTop(topBar);
-        root.setCenter(tabPane);
+        root.setCenter(centerSplit);
         root.setBottom(outputArea);
         BorderPane.setMargin(outputArea, new Insets(4));
-        BorderPane.setMargin(tabPane, new Insets(0, 0, 0, 0));
+        BorderPane.setMargin(centerSplit, new Insets(0));
 
         Scene scene = new Scene(root, 1100, 700);
         DarculaFX.applyDarculaStyle(scene);
-        scene.getStylesheets().add(
-                getClass().getResource("/styles/tabs.css").toExternalForm()
+        scene.getStylesheets().addAll(
+                getClass().getResource("/styles/tabs.css").toExternalForm(),
+                getClass().getResource("/styles/project.css").toExternalForm()
         );
 
         openTabWithContent(DEFAULT_CONTENT, null);
@@ -94,6 +108,19 @@ public class MainWindow {
         outputArea.setEditable(false);
         outputArea.setPromptText("Вывод Verilator / Icarus будет отображаться здесь...");
         return outputArea;
+    }
+
+    private VBox buildProjectPanel() {
+        Label header = new Label("ОБОЗРЕВАТЕЛЬ ПРОЕКТА");
+        header.getStyleClass().add("project-panel-header");
+        header.setMaxWidth(Double.MAX_VALUE);
+
+        VBox panel = new VBox(header, projectTree);
+        panel.getStyleClass().add("project-panel");
+        panel.setMinWidth(160);
+        panel.setPrefWidth(240);
+        VBox.setVgrow(projectTree, Priority.ALWAYS);
+        return panel;
     }
 
     private HBox buildToolbar(OutputSink outputSink) {
@@ -136,6 +163,9 @@ public class MainWindow {
         saveAsItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+S"));
         saveAsItem.setOnAction(e -> fileSaveAs());
 
+        MenuItem openProjectItem = new MenuItem("Открыть проект...");
+        openProjectItem.setOnAction(e -> fileOpenProject());
+
         SeparatorMenuItem sep1 = new SeparatorMenuItem();
 
         MenuItem closeTabItem = new MenuItem("Закрыть вкладку");
@@ -156,7 +186,9 @@ public class MainWindow {
 
         fileMenu.getItems().addAll(
                 newItem, openItem, saveItem, saveAsItem,
-                sep1, closeTabItem, closeOthersItem, closeAllItem,
+                sep1, openProjectItem,
+                new SeparatorMenuItem(),
+                closeTabItem, closeOthersItem, closeAllItem,
                 sep2, exitItem
         );
         menuBar.getMenus().add(fileMenu);
@@ -310,6 +342,41 @@ public class MainWindow {
             } catch (IOException ex) {
                 showError("Не удалось открыть файл: " + ex.getMessage());
             }
+        }
+    }
+
+    private void fileOpenProject() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Открыть проект");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Проект SystemVerilog (*.proj)", "*.proj"),
+                new FileChooser.ExtensionFilter("Все файлы", "*.*")
+        );
+        File file = chooser.showOpenDialog(stage);
+        if (file == null) {
+            return;
+        }
+        try {
+            currentProject = new ProjectParser().parse(file);
+            projectTree.loadProject(currentProject);
+        } catch (Exception ex) {
+            showError("Не удалось открыть проект: " + ex.getMessage());
+        }
+    }
+
+    private void openFileInTab(File file) {
+        for (TabInfo info : openTabs) {
+            File openFile = info.getDocumentManager().getCurrentFile();
+            if (openFile != null && openFile.equals(file)) {
+                tabPane.getSelectionModel().select(info.getTab());
+                return;
+            }
+        }
+        try {
+            openTabWithContent(java.nio.file.Files.readString(file.toPath()), file);
+            updateTitle();
+        } catch (IOException ex) {
+            showError("Не удалось открыть файл: " + ex.getMessage());
         }
     }
 
